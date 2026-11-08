@@ -45,7 +45,7 @@ pipeline {
                     docker tag devops-demo-python:latest \
                     $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
                 '''
-#docker tag $DOCKER_IMAGE:$IMAGE_TAG \ if want local name of docker remains same
+#docker tag $DOCKER_IMAGE:$IMAGE_TAG \ if want local name of docker remains same ...
             }
         }
 

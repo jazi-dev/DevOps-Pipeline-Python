@@ -8,9 +8,22 @@ pipeline {
 
     stages {
 
+<<<<<<< HEAD
         stage('Check AWS Identity') {
             steps {
                 sh 'aws sts get-caller-identity'
+=======
+      stage('Create Cluster') {
+        steps {
+          // You will need to install CloudBees AWS Credentials Plugin in Jenkins and add AWS Credentials first 
+            withCredentials([[
+              $class: 'AmazonWebServicesCredentialsBinding',
+              credentialsId: "aws-credentials",
+              accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+              secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+              ]]) {
+              sh "eksctl create cluster --name python-cluster --region eu-north-1 --nodes-min=3"
+>>>>>>> origin/main
             }
         }
 
@@ -54,5 +67,8 @@ pipeline {
         }
     }
 }
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> origin/main

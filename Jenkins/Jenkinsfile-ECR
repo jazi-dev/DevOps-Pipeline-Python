@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         AWS_REGION = 'eu-north-1'
-        ECR_REPOSITORY = 'devops-demo-app'
+        ECR_REPOSITORY = 'devops-demo-python'
         AWS_ACCOUNT_ID = '558037577656'
         IMAGE_TAG = 'latest'
     }

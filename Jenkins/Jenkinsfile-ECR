@@ -25,6 +25,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t devops-demo-python:latest ./Python'
+#sh 'docker build -t $DOCKER_IMAGE:$IMAGE_TAG ./Python' in case i want the local name of the docker remains the same
             }
         }
 
@@ -44,6 +45,7 @@ pipeline {
                     docker tag devops-demo-python:latest \
                     $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
                 '''
+#docker tag $DOCKER_IMAGE:$IMAGE_TAG \ if want local name of docker remains same
             }
         }
 

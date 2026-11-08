@@ -1,62 +1,58 @@
 pipeline {
     agent any
 
+    environment {
+        AWS_REGION = 'eu-north-1'
+        CLUSTER_NAME = 'python-cluster'
+    }
+
     stages {
 
-      stage('Create Cluster') {
-        steps {
-          // You will need to install CloudBees AWS Credentials Plugin in Jenkins and add AWS Credentials first 
-            withCredentials([[
-              $class: 'AmazonWebServicesCredentialsBinding',
-              credentialsId: "aws-credentials",
-              accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-              secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-              ]]) {
-              sh "eksctl create cluster --name python-cluster --region eu-north-1 --nodes-min=3"
+        stage('Check AWS Identity') {
+            steps {
+                sh 'aws sts get-caller-identity'
             }
         }
-      }
 
-      stage('Update Kubeconfig') {
-        steps {
-          // You will need to install CloudBees AWS Credentials Plugin in Jenkins and add AWS Credentials first 
-            withCredentials([[
-              $class: 'AmazonWebServicesCredentialsBinding',
-              credentialsId: "aws-credentials",
-              accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-              secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-              ]]) {
-              sh """
-              aws eks update-kubeconfig --name python-cluster
-              """
+        stage('Create EKS Cluster') {
+            steps {
+                sh '''
+                    eksctl create cluster \
+                    --name $CLUSTER_NAME \
+                    --region $AWS_REGION \
+                    --node-type t3.medium \
+                    --nodes 2 \
+                    --nodes-min 2 \
+                    --nodes-max 2
+                '''
             }
         }
-      }
-      
-      stage('Create Namespace') {
-        steps {
-          // You will need to install CloudBees AWS Credentials Plugin in Jenkins and add AWS Credentials first 
-            withCredentials([[
-              $class: 'AmazonWebServicesCredentialsBinding',
-              credentialsId: "aws-credentials",
-              accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-              secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-              ]]) {
-              sh "kubectl create namespace python-app"
-            }
-        }
-      }
 
-      stage('Deploy App') {
-        steps {
-            script{
-                build job: 'DEPLOY_APP',
-                parameters: [
-                [ $class: 'StringParameterValue', name: 'DEPLOYMENT']    
-                ]
-                
-            } 
-        } 
-      }
+        stage('Update Kubeconfig') {
+            steps {
+                sh '''
+                    aws eks update-kubeconfig \
+                    --name $CLUSTER_NAME \
+                    --region $AWS_REGION
+                '''
+            }
+        }
+
+        stage('Verify Kubernetes Connection') {
+            steps {
+                sh 'kubectl get nodes'
+            }
+        }
+
+        stage('Create Namespace') {
+            steps {
+                sh '''
+                    kubectl create namespace python-app \
+                    --dry-run=client -o yaml | kubectl apply -f -
+                '''
+            }
+        }
     }
 }
+
+

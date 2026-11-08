@@ -17,3 +17,8 @@ minikube-linux-amd64
 k9s_Linux_x86_64.tar.gz
 kubectl.sha256
 *.tar.gz
+
+# AWS CLI installation files
+aws/dist/
+aws/install
+awscliv2.zip
